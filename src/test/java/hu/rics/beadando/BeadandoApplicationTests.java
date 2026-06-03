@@ -65,23 +65,48 @@ class BeadandoApplicationTests {
         productService.delete(1L);
         verify(productRepository, times(1)).deleteById(1L);
     }
-	@Test
-void update_returnsUpdatedProduct() {
-    Product updated = new Product();
-    updated.setName("Gaming Laptop");
-    updated.setPrice(499999.99);
-    updated.setQuantity(3);
 
-    when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-    when(productRepository.save(any(Product.class))).thenReturn(product);
+    @Test
+    void update_returnsUpdatedProduct() {
+        Product updated = new Product();
+        updated.setName("Gaming Laptop");
+        updated.setPrice(499999.99);
+        updated.setQuantity(3);
 
-    Product result = productService.update(1L, updated);
-    assertNotNull(result);
-}
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
 
-@Test
-void findById_throwsException_whenNotFound() {
-    when(productRepository.findById(99L)).thenReturn(Optional.empty());
-    assertThrows(RuntimeException.class, () -> productService.findById(99L));
-}
+        Product result = productService.update(1L, updated);
+        assertNotNull(result);
+    }
+
+    @Test
+    void findById_throwsException_whenNotFound() {
+        when(productRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> productService.findById(99L));
+    }
+
+    @Test
+    void findAll_returnsEmptyList() {
+        when(productRepository.findAll()).thenReturn(List.of());
+        List<Product> result = productService.findAll();
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void save_persistsProduct() {
+        Product newProduct = new Product();
+        newProduct.setName("Phone");
+        newProduct.setPrice(99999.99);
+        newProduct.setQuantity(10);
+        when(productRepository.save(any(Product.class))).thenReturn(newProduct);
+        Product result = productService.save(newProduct);
+        assertEquals("Phone", result.getName());
+    }
+
+    @Test
+    void delete_nonExistent_callsRepository() {
+        productService.delete(99L);
+        verify(productRepository, times(1)).deleteById(99L);
+    }
 }
