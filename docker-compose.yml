@@ -6,6 +6,13 @@ services:
       MYSQL_DATABASE: beadando
     ports:
       - "3306:3306"
+    networks:
+      - beadando-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
@@ -16,4 +23,11 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    networks:
+      - beadando-network
+
+networks:
+  beadando-network:
+    driver: bridge
